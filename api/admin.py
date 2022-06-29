@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Payment,Cart,Category,Product, CartItem
+from .models import Payment, Cart, Category, Product, CartItem
 
 
 # Register your models here.

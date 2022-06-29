@@ -29,5 +29,3 @@ def node_connection():
     channel = grpc.secure_channel("localhost:10009", combined_creds)
     stub = lnrpc.LightningStub(channel)
     return stub
-
-

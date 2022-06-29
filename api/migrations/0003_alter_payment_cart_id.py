@@ -7,13 +7,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0002_alter_cart_options_rename_cart_id_cart_user_id'),
+        ("api", "0002_alter_cart_options_rename_cart_id_cart_user_id"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='payment',
-            name='cart_id',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='api.cart'),
+            model_name="payment",
+            name="cart_id",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to="api.cart"
+            ),
         ),
     ]
