@@ -16,6 +16,7 @@ from .utils import *
 
 stub = node_connection()
 
+
 class CreateCategoryView(APIView):
     permission_classes = [AllowAny]
     """ this allows user to create category"""
@@ -91,8 +92,7 @@ class CreateCartItemView(APIView):
 
                 serializer.save()
 
-            pr = CartItem.objects.get(user=request.user.id)
-            print(pr)
+            # pr = CartItem.objects.get(user=request.user.id)
 
             return Response(
                 {
@@ -136,34 +136,44 @@ class CheckoutView(APIView):
         )
 
         create_invoice = stub.AddInvoice(invoice_content)
-        order_invoice=create_invoice.payment_request
-        payment_hash=create_invoice.r_hash
+        order_invoice = create_invoice.payment_request
+        payment_hash = create_invoice.r_hash
         try:
 
             Payment.objects.create(
-            cart_id=cart,
-            invoice=order_invoice,
-            payment_hash=payment_hash
-        )
-        
-            return Response({
-            'lightning_invoice': str(order_invoice),
-            
-             }
+                cart_id=cart, invoice=order_invoice, payment_hash=payment_hash
             )
-        except IntegrityError:
-            payment_deets=Payment.objects.get(cart_id=cart_id)
-            invoice=payment_deets.invoice
+
             return Response(
                 {
-                    "payment_invoice": str(invoice)
+                    "lightning_invoice": str(order_invoice),
                 }
             )
+        except IntegrityError:
+            payment_deets = Payment.objects.get(cart_id=cart_id)
+            invoice = payment_deets.invoice
+            return Response({"payment_invoice": str(invoice)})
 
 
+class PaymentConfirmationView(APIView):
+    """this view confirms payment"""
 
-class PaymentConfirmation(APIView):
-   pass
+    def get(self, request, cart_id):
 
+        payment_info = Payment.objects.get(cart_id=cart_id)
 
+        pay_hash = eval(payment_info.payment_hash)
 
+        requ = ln.PaymentHash(r_hash=pay_hash)
+        respon = stub.LookupInvoice(requ)
+        if respon.settled == True:
+            payment_info.payment_confirmed = True
+            payment_info.save()
+            return Response(
+                {
+                    "status": status.HTTP_200_OK,
+                    "message": f"Payment for order {cart_id} has been confirmed",
+                }
+            )
+        else:
+            return Response({"message": "payment has not been confirmed"})
