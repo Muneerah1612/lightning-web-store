@@ -36,13 +36,13 @@ class CartItem(models.Model):
         return self.quantity * self.product.price
 
 class Cart(models.Model):
-    cart_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     products = models.ManyToManyField(CartItem)
     
 
     class Meta:
-        ordering = ['cart_id', '-created_at']
+        ordering = ['user_id', '-created_at']
     
     # def __str__(self):
     #     return self.cart_id.username
@@ -56,7 +56,7 @@ class Cart(models.Model):
     
 
 class Payment(models.Model):
-    cart_id= models.ForeignKey(Cart, on_delete=models.CASCADE)
+    cart_id= models.OneToOneField(Cart, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     invoice= models.CharField(max_length=400)
     payment_confirmed=models.BooleanField(default=False)
